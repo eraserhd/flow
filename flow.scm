@@ -162,9 +162,11 @@
 (define (grid-solved? grid)
   (not (grid-detect grid
 	 (lambda (cell)
-	   (or (eq? 'empty cell)
-	       (and (pair? cell)
-		    (eq? 'goal (car cell))))))))
+	   (case (cell-type cell)
+	     ((goal empty)
+	      #t)
+	     (else
+	      #f))))))
 
 (define (grid-solve grid)
 
@@ -181,22 +183,19 @@
 		              (grid-set! g this-move index)
 			      g))
 		  (original-cell (grid-ref grid this-move))
-		  (original-goal? (and (pair? original-cell)
-				       (eq? 'goal (car original-cell))))
+		  (original-goal? (cell-type? original-cell 'goal))
 		  (next-index (if (not original-goal?)
 				this-move
 				(let* ((next-goal (grid-detect new-grid
 						    (lambda (cell)
-						      (and (pair? cell)
-							   (eq? 'goal (car cell))))))
+						      (cell-type? cell 'goal))))
 				       (goal-color (if next-goal
 						     (cdr (grid-ref new-grid next-goal))
 						     #f))
 				       (next-start (if next-goal
 						     (grid-detect new-grid
 						       (lambda (cell)
-							 (and (pair? cell)
-							      (eq? 'start (car cell))
+							 (and (cell-type? cell 'start)
 							      (= goal-color (cdr cell)))))
 						     #f)))
 				  next-start)))
