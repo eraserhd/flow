@@ -43,6 +43,13 @@
        (fixnum? (car index))
        (fixnum? (cdr index))))
 
+(define (index-add a b)
+  (make-index
+    (+ (index-row a)
+       (index-row b))
+    (+ (index-column a)
+       (index-column b))))
+
 (define (grid-cell-index/internal grid index)
   (+ (* (index-row index)
         (grid-width grid))
@@ -133,11 +140,7 @@
       ((not (index? index))
        '())
       (else
-       (let* ((possible-move (make-index
-			       (+ (index-row index)
-			          (index-row (car deltas)))
-			       (+ (index-column index)
-				  (index-column (car deltas)))))
+       (let* ((possible-move (index-add index (car deltas)))
 	      (take-move (lambda ()
 			   (loop (cdr deltas) (cons possible-move possible-moves))))
 	      (reject-move (lambda ()
