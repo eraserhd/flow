@@ -171,6 +171,19 @@
        #f)))
   (not (grid-detect grid empty-or-goal?)))
 
+(define (start-for-next-unsolved-color grid)
+  (let* ((next-goal (grid-detect grid
+		      (lambda (cell)
+			(cell-type? cell 'goal))))
+	 (goal-color (if next-goal
+		       (cdr (grid-ref grid next-goal))))
+	 (next-start (if next-goal
+		       (grid-detect grid
+			 (lambda (cell)
+			   (and (cell-type? cell 'start)
+				(= goal-color (cdr cell))))))))
+    next-start))
+
 (define (grid-solve grid)
 
   (define (solve/internal grid index)
@@ -186,20 +199,10 @@
 		              (grid-set! g this-move index)
 			      g))
 		  (original-cell (grid-ref grid this-move))
-		  (original-goal? (cell-type? original-cell 'goal))
-		  (next-index (if (not original-goal?)
+		  (reached-goal? (cell-type? original-cell 'goal))
+		  (next-index (if (not reached-goal?)
 				this-move
-				(let* ((next-goal (grid-detect new-grid
-						    (lambda (cell)
-						      (cell-type? cell 'goal))))
-				       (goal-color (if next-goal
-						     (cdr (grid-ref new-grid next-goal))))
-				       (next-start (if next-goal
-						     (grid-detect new-grid
-						       (lambda (cell)
-							 (and (cell-type? cell 'start)
-							      (= goal-color (cdr cell))))))))
-				  next-start)))
+				(start-for-next-unsolved-color new-grid)))
 		  (sub-result (solve/internal new-grid next-index)))
 	     (if sub-result
 	       sub-result
