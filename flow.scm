@@ -218,8 +218,17 @@
 	       (s-offset (+ (* s-width i) j))
 	       (c-char (if color
 			 (integer->char (+ color (char->integer #\0)))
-			 #\space)))
-	  (string-set! s s-offset c-char)))
+			 #\space))
+	       (cell-value (grid-ref grid index))
+	       (direction (if (not (index? cell-value))
+			    #f
+			    (cons
+			      (- (index-row cell-value) (index-row index))
+			      (- (index-column cell-value) (index-column index))))))
+	  (string-set! s s-offset c-char)
+	  (if direction
+	    (string-set! s (+ s-offset (index-column direction) (* (index-row direction) s-width)) #\space))
+	  ))
       (grid-indices grid))
 
     s))
