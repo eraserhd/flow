@@ -105,6 +105,12 @@
       (else
        #f))))
 
+(define (grid-index-valid? grid index)
+  (and (>= (index-row index) 0)
+       (>= (index-column index) 0)
+       (< (index-row index) (grid-height grid))
+       (< (index-column index) (grid-width grid))))
+
 (define (grid-possible-moves grid index)
   (let loop ((deltas '((-1 . 0) (+1 . 0) (0 . -1) (0 . +1)))
 	     (possible-moves '()))
@@ -121,10 +127,7 @@
 				  (index-column (car deltas))))))
 	 (cond
 	   ;; Can't move off the board
-	   ((or (< (index-row possible-move) 0)
-		(< (index-column possible-move) 0)
-		(>= (index-row possible-move) (grid-height grid))
-		(>= (index-column possible-move) (grid-width grid)))
+	   ((not (grid-index-valid? grid possible-move))
 	    (loop (cdr deltas) possible-moves))
 
 	   ;; Can move to empty cell
@@ -154,7 +157,6 @@
 (define (grid-solve grid)
 
   (define (solve/internal grid index)
-
     (if (grid-solved? grid)
       grid
       (let loop ((possible-moves (grid-possible-moves grid index)))
