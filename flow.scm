@@ -7,6 +7,19 @@
   (- (char->integer c)
      (char->integer #\0)))
 
+;; Grid cell contents
+(define (cell-type cell)
+  (cond
+    ((eq? 'empty cell)
+     'empty)
+    ((index? cell)
+     'track)
+    (else
+     (car cell))))
+  
+(define (cell-type? cell type)
+  (eq? type (cell-type cell)))
+
 ;; Grids
 (define (make-grid width . initial-values)
   (list->vector (cons width initial-values)))
@@ -104,13 +117,11 @@
       (else
        #f))))
 
-(define (grid-cell-empty? grid index)
-  (eq? 'empty (grid-ref grid index)))
+(define (grid-cell-type grid index)
+  (cell-type (grid-ref grid index)))
 
-(define (grid-cell-goal? grid index)
-  (let ((cell (grid-ref grid index)))
-    (and (pair? cell)
-	 (eq? 'goal (car cell)))))
+(define (grid-cell-type? grid index type)
+  (cell-type? (grid-ref grid index) type))
 
 (define (grid-index-valid? grid index)
   (and (>= (index-row index) 0)
@@ -140,10 +151,10 @@
 	   ((not (grid-index-valid? grid possible-move))
 	    (reject-move))
 
-	   ((grid-cell-empty? grid possible-move)
+	   ((grid-cell-type? grid possible-move 'empty)
 	    (take-move))
 
-	   ((grid-cell-goal? grid possible-move)
+	   ((grid-cell-type? grid possible-move 'goal)
 	    (let ((goal-color (grid-cell-color grid possible-move))
 		  (start-color (grid-cell-color grid index)))
 	      (if (equal? goal-color start-color)
