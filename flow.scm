@@ -101,19 +101,14 @@
 	(grid-indices grid))
       #f)))
 
-(define (start-cell? cell)
-  (and (pair? cell)
-       (eq? 'start (car cell))))
-
 (define (grid-cell-color grid index)
   (let loop ((index index)
-	     (cell-value (grid-ref grid index)))
-    (cond
-      ((and (pair? cell-value)
-	    (memq (car cell-value) '(start goal)))
-       (cdr cell-value))
-      ((index? cell-value)
-       (loop cell-value (grid-ref grid cell-value)))
+	     (cell (grid-ref grid index)))
+    (case (cell-type cell)
+      ((start goal)
+       (cdr cell))
+      ((track)
+       (loop cell (grid-ref grid cell)))
       (else
        #f))))
 
@@ -210,7 +205,8 @@
 	       sub-result
 	       (loop (cdr possible-moves)))))))))
 
-  (solve/internal grid (grid-detect grid start-cell?)))
+  (solve/internal grid (grid-detect grid (lambda (cell)
+					   (cell-type? cell 'start)))))
 
 (define (grid->string grid)
   (let* ((s-width (+ 2 (* 2 (grid-width grid))))
