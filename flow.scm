@@ -258,17 +258,17 @@
 (display (grid->string (grid-solve *test-grid*)))
 (newline)
 
-(define *hard-grid* (parse-grid
-		      "*********"
-		      "*******1*"
-		      "**2****2*"
-		      "**3*4****"
-		      "**5*36***"
-		      "****78*4*"
-		      "****5****"
-		      "*1****86*"
-		      "***7*****"))
-(display (grid->string (grid-solve *hard-grid*)))
-(newline)
+;(define *hard-grid* (parse-grid
+;		      "*********"
+;		      "*******1*"
+;		      "**2****2*"
+;		      "**3*4****"
+;		      "**5*36***"
+;		      "****78*4*"
+;		      "****5****"
+;		      "*1****86*"
+;		      "***7*****"))
+;(display (grid->string (grid-solve *hard-grid*)))
+;(newline)
 
 
