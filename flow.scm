@@ -1,4 +1,3 @@
-
 ;; Digits
 (define (digit? c)
   (and (char>=? c #\0)
@@ -26,16 +25,16 @@
 (define index-row car)
 (define index-column cdr)
 
+(define (index? index)
+  (and (pair? index)
+       (fixnum? (car index))
+       (fixnum? (cdr index))))
+
 (define (grid-cell-index/internal grid index)
   (+ (* (index-row index)
         (grid-width grid))
      (index-column index)
      1))
-
-(define (index? index)
-  (and (pair? index)
-       (fixnum? (car index))
-       (fixnum? (cdr index))))
 
 (define (grid-ref grid index)
   (vector-ref grid (grid-cell-index/internal grid index)))
@@ -105,6 +104,9 @@
       (else
        #f))))
 
+(define (grid-cell-empty? grid index)
+  (eq? 'empty (grid-ref grid index)))
+
 (define (grid-index-valid? grid index)
   (and (>= (index-row index) 0)
        (>= (index-column index) 0)
@@ -131,7 +133,7 @@
 	    (loop (cdr deltas) possible-moves))
 
 	   ;; Can move to empty cell
-	   ((eq? 'empty (grid-ref grid possible-move))
+	   ((grid-cell-empty? grid possible-move)
 	    (loop (cdr deltas) (cons possible-move possible-moves)))
 
 	   ;; Can move to goal if goal is same color
