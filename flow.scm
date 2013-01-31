@@ -107,6 +107,11 @@
 (define (grid-cell-empty? grid index)
   (eq? 'empty (grid-ref grid index)))
 
+(define (grid-cell-goal? grid index)
+  (let ((cell (grid-ref grid index)))
+    (and (pair? cell)
+	 (eq? 'goal (car cell)))))
+
 (define (grid-index-valid? grid index)
   (and (>= (index-row index) 0)
        (>= (index-column index) 0)
@@ -137,9 +142,8 @@
 	    (loop (cdr deltas) (cons possible-move possible-moves)))
 
 	   ;; Can move to goal if goal is same color
-	   ((and (pair? (grid-ref grid possible-move))
-		 (eq? 'goal (car (grid-ref grid possible-move))))
-	    (let ((goal-color (cdr (grid-ref grid possible-move)))
+	   ((grid-cell-goal? grid possible-move)
+	    (let ((goal-color (grid-cell-color grid possible-move))
 		  (start-color (grid-cell-color grid index)))
 	      (if (equal? goal-color start-color)
 		(loop (cdr deltas) (cons possible-move possible-moves))
@@ -270,5 +274,3 @@
 ;		      "***7*****"))
 ;(display (grid->string (grid-solve *hard-grid*)))
 ;(newline)
-
-
