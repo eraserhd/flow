@@ -155,9 +155,6 @@
 
   (define (solve/internal grid index)
 
-    (display (grid->string grid))
-    (newline)
-
     (if (grid-solved? grid)
       grid
       (let loop ((possible-moves (grid-possible-moves grid index)))
@@ -174,7 +171,21 @@
 				       (eq? 'goal (car original-cell-value))))
 		  (next-index (if (not original-goal?)
 				this-move
-				(grid-detect grid start-cell?)))
+				(let* ((next-goal (grid-detect new-grid
+						    (lambda (cell-value)
+						      (and (pair? cell-value)
+							   (eq? 'goal (car cell-value))))))
+				       (goal-color (if next-goal
+						     (cdr (grid-ref new-grid next-goal))
+						     #f))
+				       (next-start (if next-goal
+						     (grid-detect new-grid
+						       (lambda (cell-value)
+							 (and (pair? cell-value)
+							      (eq? 'start (car cell-value))
+							      (= goal-color (cdr cell-value)))))
+						     #f)))
+				  next-start)))
 		  (sub-result (solve/internal new-grid next-index)))
 	     (if sub-result
 	       sub-result
@@ -240,5 +251,20 @@
 		      "1**5*"
 		      "2*53*"))
 
-(write (grid-solve *test-grid*))
+(display (grid->string (grid-solve *test-grid*)))
+(newline)
+
+(define *hard-grid* (parse-grid
+		      "*********"
+		      "*******1*"
+		      "**2****2*"
+		      "**3*4****"
+		      "**5*36***"
+		      "****78*4*"
+		      "****5****"
+		      "*1****86*"
+		      "***7*****"))
+(display (grid->string (grid-solve *hard-grid*)))
+(newline)
+
 
