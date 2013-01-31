@@ -193,14 +193,12 @@
 						    (lambda (cell)
 						      (cell-type? cell 'goal))))
 				       (goal-color (if next-goal
-						     (cdr (grid-ref new-grid next-goal))
-						     #f))
+						     (cdr (grid-ref new-grid next-goal))))
 				       (next-start (if next-goal
 						     (grid-detect new-grid
 						       (lambda (cell)
 							 (and (cell-type? cell 'start)
-							      (= goal-color (cdr cell)))))
-						     #f)))
+							      (= goal-color (cdr cell))))))))
 				  next-start)))
 		  (sub-result (solve/internal new-grid next-index)))
 	     (if sub-result
