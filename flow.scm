@@ -108,6 +108,17 @@
 	(grid-indices grid))
       #f)))
 
+(define (grid-select grid proc)
+  (let loop ((indices-left (grid-indices grid))
+	     (found '()))
+    (cond
+      ((null? indices-left)
+       (reverse found))
+      ((proc (grid-ref grid (car indices-left)))
+       (loop (cdr indices-left) (cons (car indices-left) found)))
+      (else
+       (loop (cdr indices-left) found)))))
+
 (define (grid-cell-color grid index)
   (let loop ((index index)
 	     (cell (grid-ref grid index)))
