@@ -59,25 +59,25 @@
   (let* ((width (string-length (car rows)))
 	 (colors-found '())
 	 (starts '())
-	 (char->cell-value (lambda (c)
-			     (cond
-			       ((or (char=? #\space c)
-				    (char=? #\* c))
-				'empty)
-			       ((digit? c)
-				(cond
-				  ((memq c colors-found)
-				   `(goal . ,(digit->integer c)))
-				  (else
-				   (set! colors-found (cons c colors-found))
-				   `(start . ,(digit->integer c)))))
-			       (else
-				 (raise (string-append
-					  "Invalid character '"
-					  (make-string 1 c)
-					  "' found in state specification."))))))
-	 (cell-values (map char->cell-value (string->list (apply string-append rows)))))
-    (apply make-grid width cell-values)))
+	 (char->cell (lambda (c)
+		       (cond
+			 ((or (char=? #\space c)
+			      (char=? #\* c))
+			  'empty)
+			 ((digit? c)
+			  (cond
+			    ((memq c colors-found)
+			     `(goal . ,(digit->integer c)))
+			    (else
+			     (set! colors-found (cons c colors-found))
+			     `(start . ,(digit->integer c)))))
+			 (else
+			   (raise (string-append
+				    "Invalid character '"
+				    (make-string 1 c)
+				    "' found in state specification."))))))
+	 (cells (map char->cell (string->list (apply string-append rows)))))
+    (apply make-grid width cells)))
 
 (define (grid-indices grid)
   (let loop ((i 0)
@@ -161,10 +161,10 @@
 
 (define (grid-solved? grid)
   (not (grid-detect grid
-	 (lambda (cell-value)
-	   (or (eq? 'empty cell-value)
-	       (and (pair? cell-value)
-		    (eq? 'goal (car cell-value))))))))
+	 (lambda (cell)
+	   (or (eq? 'empty cell)
+	       (and (pair? cell)
+		    (eq? 'goal (car cell))))))))
 
 (define (grid-solve grid)
 
@@ -180,24 +180,24 @@
 		  (new-grid (let ((g (grid-copy grid)))
 		              (grid-set! g this-move index)
 			      g))
-		  (original-cell-value (grid-ref grid this-move))
-		  (original-goal? (and (pair? original-cell-value)
-				       (eq? 'goal (car original-cell-value))))
+		  (original-cell (grid-ref grid this-move))
+		  (original-goal? (and (pair? original-cell)
+				       (eq? 'goal (car original-cell))))
 		  (next-index (if (not original-goal?)
 				this-move
 				(let* ((next-goal (grid-detect new-grid
-						    (lambda (cell-value)
-						      (and (pair? cell-value)
-							   (eq? 'goal (car cell-value))))))
+						    (lambda (cell)
+						      (and (pair? cell)
+							   (eq? 'goal (car cell))))))
 				       (goal-color (if next-goal
 						     (cdr (grid-ref new-grid next-goal))
 						     #f))
 				       (next-start (if next-goal
 						     (grid-detect new-grid
-						       (lambda (cell-value)
-							 (and (pair? cell-value)
-							      (eq? 'start (car cell-value))
-							      (= goal-color (cdr cell-value)))))
+						       (lambda (cell)
+							 (and (pair? cell)
+							      (eq? 'start (car cell))
+							      (= goal-color (cdr cell)))))
 						     #f)))
 				  next-start)))
 		  (sub-result (solve/internal new-grid next-index)))
@@ -245,12 +245,12 @@
 	       (c-char (if color
 			 (integer->char (+ color (char->integer #\0)))
 			 #\space))
-	       (cell-value (grid-ref grid index))
-	       (direction (if (not (index? cell-value))
+	       (cell (grid-ref grid index))
+	       (direction (if (not (index? cell))
 			    #f
 			    (cons
-			      (- (index-row cell-value) (index-row index))
-			      (- (index-column cell-value) (index-column index))))))
+			      (- (index-row cell) (index-row index))
+			      (- (index-column cell) (index-column index))))))
 	  (string-set! s s-offset c-char)
 	  (if direction
 	    (string-set! s (+ s-offset (index-column direction) (* (index-row direction) s-width)) #\space))
