@@ -163,13 +163,13 @@
 	    (reject-move))))))))
 
 (define (grid-solved? grid)
-  (not (grid-detect grid
-	 (lambda (cell)
-	   (case (cell-type cell)
-	     ((goal empty)
-	      #t)
-	     (else
-	      #f))))))
+  (define (empty-or-goal? cell)
+    (case (cell-type cell)
+      ((goal empty)
+       #t)
+      (else
+       #f)))
+  (not (grid-detect grid empty-or-goal?)))
 
 (define (grid-solve grid)
 
