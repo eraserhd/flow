@@ -131,27 +131,27 @@
 			       (+ (index-row index)
 			          (index-row (car deltas)))
 			       (+ (index-column index)
-				  (index-column (car deltas))))))
+				  (index-column (car deltas)))))
+	      (take-move (lambda ()
+			   (loop (cdr deltas) (cons possible-move possible-moves))))
+	      (reject-move (lambda ()
+			     (loop (cdr deltas) possible-moves))))
 	 (cond
-	   ;; Can't move off the board
 	   ((not (grid-index-valid? grid possible-move))
-	    (loop (cdr deltas) possible-moves))
+	    (reject-move))
 
-	   ;; Can move to empty cell
 	   ((grid-cell-empty? grid possible-move)
-	    (loop (cdr deltas) (cons possible-move possible-moves)))
+	    (take-move))
 
-	   ;; Can move to goal if goal is same color
 	   ((grid-cell-goal? grid possible-move)
 	    (let ((goal-color (grid-cell-color grid possible-move))
 		  (start-color (grid-cell-color grid index)))
 	      (if (equal? goal-color start-color)
-		(loop (cdr deltas) (cons possible-move possible-moves))
-		(loop (cdr deltas) possible-moves))))
+		(take-move)
+		(reject-move))))
 
-	   ;; Otherwise, can't move there
 	   (else
-	    (loop (cdr deltas) possible-moves))))))))
+	    (reject-move))))))))
 
 (define (grid-solved? grid)
   (not (grid-detect grid
